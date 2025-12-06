@@ -1,0 +1,13 @@
+[package]
+name = "sys-mon"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dds = { version = "0.1.0", path = "../dds" }
+futures = "0.3.31"
+log = "0.4.29"
+monitor = { version = "0.1.0", path = "../monitor" }
+rustdds = "0.11.7"
+smol = "2.0.2"
+sysinfo = "0.37.2"

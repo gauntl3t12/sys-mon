@@ -1,0 +1,4 @@
+module consts {
+    /* SystemInfoMsg DDS Topic */
+    const string SystemInfoMsgTopic = "SystemInfoMsg";
+} /* Disabled by removing ";" due to issues with imports

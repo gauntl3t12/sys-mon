@@ -1,0 +1,95 @@
+use dds::cmn::{tsCpuStatus, tsCpuTempInfo, tsDiskStatus, teDiskType, tsMemoryStatus, tsSystemInfoMsg};
+use sysinfo::{Components, DiskKind, DiskRefreshKind, Disks, System};
+
+pub struct SystemStructs {
+    system: System,
+    components: Components,
+    disks: Disks,
+}
+
+impl SystemStructs {
+    pub fn new(system: System, components: Components, disks: Disks) -> Self {
+        SystemStructs {
+            system, components, disks
+        }
+    }
+}
+
+pub fn gather_system_info(system_structs: &mut SystemStructs) -> tsSystemInfoMsg {
+    system_structs.system.refresh_memory();
+    let mem_status = tsMemoryStatus::new(
+        system_structs.system.used_memory(), 
+        system_structs.system.total_memory()
+    );
+
+    // Needs updates for intel
+    let cpu_temps = system_structs.components
+        .iter_mut()
+        .filter(|component| {
+            component.label().contains("k10temp")
+        })
+        .filter_map(|component| {
+                component.refresh();
+                if let Some(id) = component.id() && let Some(temp) = component.temperature() {
+                    Some(tsCpuTempInfo::new(id.to_string(), temp))
+                } else {
+                    None
+                }
+            }
+        )
+        .collect::<Vec<tsCpuTempInfo>>();
+
+    system_structs.system.refresh_cpu_all();
+    let cpu_freqs = system_structs.system
+        .cpus()
+        .iter()
+        .map(|cpu| cpu.frequency())
+        .collect::<Vec<u64>>();
+
+    let cpu_status = tsCpuStatus::new(
+        system_structs.system.global_cpu_usage(),
+        system_structs.system.cpus().len() as u16,
+        system_structs.system.cpus()[0].brand().to_string(),
+        mean(&cpu_freqs),
+        cpu_temps,
+        cpu_freqs,
+    );
+
+    let disk_refresh = DiskRefreshKind::nothing();
+    let disk_refresh = disk_refresh.with_storage();
+    let disk_status = system_structs.disks
+        .iter_mut()
+        .filter_map(|disk| match disk.kind() {
+            DiskKind::HDD => {
+                disk.refresh_specifics(disk_refresh);
+                Some(tsDiskStatus::new(
+                    disk.name().to_os_string().into_string().expect("Unable to convert Disk Name to String"),
+                    disk.mount_point().to_string_lossy().into_owned(),
+                    teDiskType::eeHDD,
+                    disk.total_space() - disk.available_space(),
+                    disk.total_space(),
+                ))
+            },
+            DiskKind::SSD => {
+                disk.refresh_specifics(disk_refresh);
+                Some(tsDiskStatus::new(
+                    disk.name().to_os_string().into_string().expect("Unable to convert Disk Name to String"),
+                    disk.mount_point().to_string_lossy().into_owned(),
+                    teDiskType::eeSSD,
+                    disk.total_space() - disk.available_space(),
+                    disk.total_space(),
+                ))
+            }
+            DiskKind::Unknown(_) => {
+                None
+            }
+        }
+    ).collect::<Vec<tsDiskStatus>>();
+
+    tsSystemInfoMsg::new(cpu_status, mem_status, disk_status)
+}
+
+fn mean(numbers: &[u64]) -> f32 {
+    let sum: u64 = numbers.iter().sum();
+    sum as f32 / numbers.len() as f32
+}

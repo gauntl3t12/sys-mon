@@ -1,0 +1,45 @@
+module cmn {
+    typedef sequence<unsigned long long> tcCpuFreqSeq;
+
+    struct tsCpuTempInfo {
+        string mcCpuId;
+        float mrTemp;
+    };
+
+    typedef sequence<tsCpuTempInfo> tcCpuTempsSeq;
+
+    struct tsCpuStatus {
+        float mnCurCpuUsage;
+        unsigned short mnTotalCpus;
+        string mcCpuType;
+        float mrCurCpuFreq;
+        tcCpuTempsSeq mcCpuTemps;
+        tcCpuFreqSeq mcCpuFreqs;
+    };
+
+    enum teDiskType {
+        eeSSD,
+        eeHDD,
+    };
+
+    struct tsDiskStatus {
+        string mcDiskName;
+        string mcMountPath;
+        teDiskType meDiskType;
+        unsigned long long mnDiskSizeUsedBytes;
+        unsigned long long mnDiskSizeTotalBytes;
+    };
+
+    typedef sequence<tsDiskStatus> tcDiskStatusSeq;
+
+    struct tsMemoryStatus {
+        unsigned long long mnCurMemUsage;
+        unsigned long long mnTotalMemUsage;
+    };
+
+    struct tsSystemInfoMsg {
+        tsCpuStatus msCpuStatus;
+        tsMemoryStatus msMemStatus;
+        tcDiskStatusSeq mcDiskStatusList;
+    };
+};

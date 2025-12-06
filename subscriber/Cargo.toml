@@ -1,0 +1,13 @@
+[package]
+name = "subscriber"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ctrlc = "3.5.1"
+futures = "0.3.31"
+dds = { version = "0.1.0", path = "../dds" }
+log = "0.4.28"
+rustdds = "0.11.7"
+serde = "1.0.228"
+smol = "2.0.2"
