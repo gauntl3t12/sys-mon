@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rtps-idl = "0.2.0"
 rustdds = "0.11.7"
 serde = "1.0.228"
 serde_derive = "1.0.228"
+
+[build-dependencies]
+omg-idl-code-gen = "0.2.1"

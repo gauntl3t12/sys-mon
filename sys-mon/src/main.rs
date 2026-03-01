@@ -1,26 +1,17 @@
-use std::{
-    time::Duration,
-};
+use std::time::Duration;
 
+use futures::{FutureExt, StreamExt, TryFutureExt};
 use rustdds::{
-    DomainParticipantBuilder, QosPolicyBuilder, TopicKind, DataWriterStatus, StatusEvented,
+    DataWriterStatus, DomainParticipantBuilder, QosPolicyBuilder, StatusEvented, TopicKind,
     policy::Reliability,
-    no_key::DataWriter,
 };
 use smol::Timer;
-use futures::{FutureExt, StreamExt, TryFutureExt};
 
-use dds::{
-    cmn::tsSystemInfoMsg,
-    // consts::SystemInfoMsgTopic
-};
-use monitor;
+use dds::{cmn::tsSystemInfoMsg, consts::SystemInfoMsgTopic};
 use sysinfo::{Components, Disks, System};
 
-pub const SystemInfoMsgTopic: &str = "SystemInfoMsg";
-
 fn main() {
-        let domain_id = 0;
+    let domain_id = 0;
     let domain_participant = DomainParticipantBuilder::new(domain_id)
         .build()
         .unwrap_or_else(|e| panic!("DomainParticipant construction failed: {e:?}"));
@@ -41,11 +32,10 @@ fn main() {
         .unwrap_or_else(|e| panic!("create_topic failed: {e:?}"));
 
     let publisher = domain_participant.create_publisher(&qos).unwrap();
-    let dds_writer =publisher
+    let dds_writer = publisher
         .create_datawriter_no_key_cdr::<tsSystemInfoMsg>(&topic, None) // None = get qos policy from publisher
         .unwrap();
-    // let dds_writer = prep_dds_writer();
-    
+
     let mut info = monitor::SystemStructs::new(
         System::new_all(),
         Components::new_with_refreshed_list(),

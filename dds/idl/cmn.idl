@@ -37,9 +37,22 @@ module cmn {
         unsigned long long mnTotalMemUsage;
     };
 
+    struct tsProcessInfo {
+        unsigned long mnPid;
+        string mcCommandLine;
+        float mrCurCpuUsage;
+        unsigned long long mnBytesWritten;
+        unsigned long long mnBytesRead;
+        string mcExe;
+        unsigned long long mnCurMemUsage;
+        unsigned long long mnCurVirtualMemoryUsage;
+    };
+    typedef sequence<tsProcessInfo> tcProcessInfoSeq;
+
     struct tsSystemInfoMsg {
         tsCpuStatus msCpuStatus;
         tsMemoryStatus msMemStatus;
-        tcDiskStatusSeq mcDiskStatusList;
+        tcDiskStatusSeq mcDiskStatusSeq;
+        tcProcessInfoSeq mcProcessInfoSeq;
     };
 };

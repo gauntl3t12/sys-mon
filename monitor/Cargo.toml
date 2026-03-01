@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 sysinfo = "0.37.2"
 dds = { version = "0.1.0", path = "../dds" }
+itertools = "0.14.0"

@@ -1,14 +1,10 @@
 //! Re-implementation of helloworld / subscriber example in CycloneDDS
 
+use dds::{cmn::tsSystemInfoMsg, consts::SystemInfoMsgTopic};
 use futures::{FutureExt, StreamExt};
 use rustdds::{
     DataReaderStatus, DomainParticipantBuilder, QosPolicyBuilder, TopicKind, policy::Reliability,
 };
-use dds::{
-    cmn::tsSystemInfoMsg,
-    // consts::SystemInfoMsgTopic
-};
-pub const SystemInfoMsgTopic: &str = "SystemInfoMsg";
 
 fn main() {
     // Set Ctrl-C handler
@@ -82,7 +78,5 @@ fn main() {
               }
             } // select!
         } // loop
-
-        println!("\nBye, World!");
     });
 }
